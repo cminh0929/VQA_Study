@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+
+# Data files
+data/raw/*
+data/processed/*
+data/coco/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/coco/.gitkeep
+
+# Model files
+checkpoints/*.pth
+checkpoints/*.pt
+*.pth
+*.pt
+
+# Logs
+logs/*.log
+logs/*.txt
+*.log
+
+# Results
+results/*.png
+results/*.jpg
+results/*.json
+results/*.csv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Markdown files (chỉ giữ code)
+*.md
+!README.md
+
+# Temporary
+*.tmp
+*.bak
+
+# Images
+*.png
+*.jpg
+*.jpeg
