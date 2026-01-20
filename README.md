@@ -1,6 +1,13 @@
-# VQA Project - Visual Question Answering with Ablation Study
+# VQA Project - Visual Question Answering
 
-Dự án VQA với 8 models để so sánh ablation study.
+Dự án VQA (Visual Question Answering) - Trả lời câu hỏi về hình ảnh.
+
+## Mục Tiêu
+
+Xây dựng hệ thống VQA trả lời 3 loại câu hỏi:
+- **Animals**: "What animal is in the image?" → dog, cat, bird...
+- **Colors**: "What color is the cat?" → black, white, brown...
+- **Counting**: "How many dogs are there?" → 1, 2, 3...
 
 ## Cấu Trúc
 
@@ -8,7 +15,7 @@ Dự án VQA với 8 models để so sánh ablation study.
 VQA/
 ├── configs/                # Cấu hình
 │   ├── base_config.py
-│   └── experiments.py      # 8 model configs
+│   └── experiments.py
 ├── data/                   # Data processing
 │   ├── scripts/            # Data generation
 │   ├── dataset.py
@@ -29,12 +36,6 @@ VQA/
     └── visualization.py
 ```
 
-## Installation
-
-```bash
-pip install -r requirements.txt
-```
-
 ## Usage
 
 ```bash
@@ -44,8 +45,8 @@ python data/scripts/download_images.py
 python data/scripts/generate_qa.py
 
 # Train
-python main.py --model model_3
+python main.py
 
-# Ablation study
-python run_ablation.py
+# Evaluate
+python evaluate.py
 ```
