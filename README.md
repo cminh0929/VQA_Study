@@ -35,18 +35,3 @@ VQA/
     ├── logger.py
     └── visualization.py
 ```
-
-## Usage
-
-```bash
-# Prepare data
-python data/scripts/prepare_coco.py --max_images 5000
-python data/scripts/download_images.py
-python data/scripts/generate_qa.py
-
-# Train
-python main.py
-
-# Evaluate
-python evaluate.py
-```
