@@ -43,6 +43,8 @@ Thumbs.db
 # Markdown files (chỉ giữ code)
 *.md
 !README.md
+!SIMPLE_PLAN.md
+!PROJECT_PLAN.md
 
 # Temporary
 *.tmp
