@@ -1,0 +1,95 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# PyTorch
+*.pth
+*.pt
+*.ckpt
+
+# Data files (IMPORTANT: Exclude images and large files)
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.webp
+
+# Large data directories
+Data_prep/data/images/
+Data_prep/data/raw/
+VQA_Model/data_backup/
+
+# Model checkpoints and logs
+VQA_Model/checkpoints/
+VQA_Model/logs/
+VQA_Model/results/
+
+# Temporary files
+*.log
+*.tmp
+*.temp
+output.txt
+
+# OS
+Thumbs.db
+.DS_Store
+
+# YOLO weights
+*.pt
+yolov8*.pt
+
+# Large JSON files (keep small ones)
+# Uncomment if annotations are too large
+# *.json
+
+# Keep these important files
+!requirements.txt
+!.gitignore
+!README.md
+!PROJECT_PLAN.md
+
+# Keep vocabularies (small files)
+!VQA_Model/data/question_vocab.json
+!VQA_Model/data/answer_vocab.json
+
+# Keep annotations (if not too large)
+!Data_prep/data/annotations/*.json

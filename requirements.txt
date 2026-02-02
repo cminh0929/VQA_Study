@@ -1,0 +1,59 @@
+# ===================================
+# VQA Project Requirements
+# Python Version: 3.10.x (REQUIRED)
+# ===================================
+
+# Core Deep Learning
+torch>=2.0.0
+torchvision>=0.15.0
+numpy>=1.21.0,<2.0.0
+
+# Computer Vision & Object Detection
+ultralytics>=8.0.0  # YOLOv8 for animal detection
+opencv-python>=4.8.0
+Pillow>=9.0.0
+
+# NLP & Text Processing
+nltk>=3.8.0
+spacy>=3.5.0
+# Run after install: python -m spacy download en_core_web_sm
+
+# Data Processing
+pandas>=1.5.0
+scikit-learn>=1.2.0
+tqdm>=4.65.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Metrics & Evaluation
+# pycocoevalcap  # For BLEU, METEOR, CIDEr, ROUGE (install separately if needed)
+
+# Training & Logging
+tensorboard>=2.12.0
+# wandb>=0.15.0  # Optional: Weights & Biases
+
+# Utilities
+PyYAML>=6.0
+jsonschema>=4.17.0
+
+# ===================================
+# Installation Instructions:
+# ===================================
+# 1. Create virtual environment (Python 3.10):
+#    py -3.10 -m venv venv
+#
+# 2. Activate virtual environment:
+#    Windows: venv\Scripts\activate
+#    Linux/Mac: source venv/bin/activate
+#
+# 3. Install requirements:
+#    pip install -r requirements.txt
+#
+# 4. Install spaCy language model:
+#    python -m spacy download en_core_web_sm
+#
+# 5. (Optional) Install PyTorch with CUDA:
+#    pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+# ===================================
