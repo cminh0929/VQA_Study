@@ -25,14 +25,21 @@ VQA_Model/
 │   └── evaluator.py          # Evaluation metrics
 │
 ├── utils/                     # Utilities
-│   └── metrics.py            # Accuracy, BLEU, F1
+│   ├── metrics.py            # Accuracy, BLEU, F1
+│   └── visualization.py      # Plot training curves, attention
+│
+├── configs/                   # Configuration
+│   └── base_config.py        # Default hyperparameters
 │
 ├── checkpoints/               # Model checkpoints
 ├── logs/                      # Training logs
 ├── results/                   # Evaluation results
+├── visualizations/            # Generated plots
 │
 ├── train.py                   # Main training script
 ├── evaluate.py                # Evaluation script
+├── inference.py               # Single image inference
+├── analyze_results.py         # Results analysis
 └── README.md                  # This file
 ```
 
@@ -82,7 +89,27 @@ python evaluate.py --model_id 1 --save_predictions
 python evaluate.py --save_predictions
 ```
 
-### **4. Custom Checkpoint**
+### **4. Inference on Single Image**
+
+```bash
+# Single question
+python inference.py --model_id 2 --image path/to/image.jpg --question "What animal is in the image?"
+
+# Interactive mode
+python inference.py --model_id 2 --interactive
+```
+
+### **5. Analyze Results**
+
+```bash
+# Analyze all trained models
+python analyze_results.py --visualize
+
+# Compare models
+python analyze_results.py --results_dir results --output_dir visualizations
+```
+
+### **6. Custom Checkpoint**
 
 ```bash
 # Evaluate with specific checkpoint
