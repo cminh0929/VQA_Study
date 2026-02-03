@@ -53,13 +53,7 @@ class LSTMEncoder(nn.Module):
         # Output dimension
         self.output_dim = hidden_dim * 2 if bidirectional else hidden_dim
         
-        print(f"Created LSTMEncoder:")
-        print(f"  Vocab size: {vocab_size}")
-        print(f"  Embed dim: {embed_dim}")
-        print(f"  Hidden dim: {hidden_dim}")
-        print(f"  Num layers: {num_layers}")
-        print(f"  Bidirectional: {bidirectional}")
-        print(f"  Output dim: {self.output_dim}")
+
     
     def forward(self, questions, lengths=None):
         """

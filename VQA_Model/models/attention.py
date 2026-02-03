@@ -34,10 +34,7 @@ class AttentionModule(nn.Module):
         self.q_proj = nn.Linear(q_dim, attn_dim)
         self.attn_linear = nn.Linear(attn_dim, 1)
         
-        print(f"Created AttentionModule:")
-        print(f"  Image dim: {img_dim}")
-        print(f"  Question dim: {q_dim}")
-        print(f"  Attention dim: {attn_dim}")
+
     
     def forward(self, img_features, q_features):
         """
@@ -102,11 +99,7 @@ class SpatialAttention(nn.Module):
         self.q_proj = nn.Linear(q_dim, attn_dim)
         self.attn_linear = nn.Linear(attn_dim, 1)
         
-        print(f"Created SpatialAttention:")
-        print(f"  Image dim: {img_dim}")
-        print(f"  Question dim: {q_dim}")
-        print(f"  Attention dim: {attn_dim}")
-        print(f"  Num regions: {num_regions}")
+
     
     def forward(self, img_features, q_features):
         """

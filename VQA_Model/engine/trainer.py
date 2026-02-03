@@ -29,6 +29,8 @@ class VQATrainer:
         checkpoint_dir: str = 'checkpoints',
         log_dir: str = 'logs',
         teacher_forcing_ratio: float = 0.5,
+        teacher_forcing_schedule: bool = True,
+        min_teacher_forcing: float = 0.5,
         gradient_clip: float = 5.0
     ):
         """
@@ -54,7 +56,12 @@ class VQATrainer:
         self.device = device
         self.checkpoint_dir = checkpoint_dir
         self.log_dir = log_dir
+        
+        # CRITICAL FIX: Scheduled Teacher Forcing
+        self.initial_teacher_forcing = teacher_forcing_ratio
         self.teacher_forcing_ratio = teacher_forcing_ratio
+        self.teacher_forcing_schedule = teacher_forcing_schedule
+        self.min_teacher_forcing = min_teacher_forcing
         self.gradient_clip = gradient_clip
         
         # Create directories
@@ -114,6 +121,16 @@ class VQATrainer:
         avg_loss = total_loss / len(self.train_loader)
         return avg_loss
     
+    def update_teacher_forcing(self, epoch: int, num_epochs: int):
+        """Update teacher forcing ratio with linear decay"""
+        if self.teacher_forcing_schedule:
+            # Linear decay from initial to minimum
+            decay = (self.initial_teacher_forcing - self.min_teacher_forcing) / num_epochs
+            self.teacher_forcing_ratio = max(
+                self.min_teacher_forcing,
+                self.initial_teacher_forcing - decay * epoch
+            )
+    
     def validate(self) -> Dict[str, float]:
         """Validate model"""
         self.model.eval()
@@ -170,6 +187,9 @@ class VQATrainer:
         for epoch in range(num_epochs):
             self.current_epoch = epoch
             
+            # CRITICAL FIX: Update teacher forcing ratio
+            self.update_teacher_forcing(epoch, num_epochs)
+            
             # Train
             train_loss = self.train_epoch()
             self.history['train_loss'].append(train_loss)
@@ -188,6 +208,7 @@ class VQATrainer:
             print(f"  Val Accuracy: {val_metrics['accuracy']:.4f}")
             print(f"  Val BLEU-1: {val_metrics['bleu1']:.4f}")
             print(f"  Val F1: {val_metrics['f1']:.4f}")
+            print(f"  Teacher Forcing: {self.teacher_forcing_ratio:.3f}")
             
             # Per-category metrics
             if 'per_category' in val_metrics:

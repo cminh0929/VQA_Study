@@ -102,13 +102,20 @@ class VQAModel(nn.Module):
             dropout=dropout
         )
         
+        # Summary info
+        trainable_params = sum(p.numel() for p in self.parameters() if p.requires_grad)
+        total_params = sum(p.numel() for p in self.parameters())
+        
         print(f"\n{'='*60}")
-        print(f"Created VQAModel:")
-        print(f"  CNN: {cnn_arch} ({'pretrained' if cnn_pretrained else 'from-scratch'})")
-        print(f"  Attention: {'Yes' if use_attention else 'No'}")
-        print(f"  Image dim: {img_dim}")
-        print(f"  Question dim: {q_dim}")
-        print(f"  Fused dim: {fused_dim}")
+        print(f"VQA MODEL INITIALIZED: [{self.get_model_name()}]")
+        print(f"{'='*60}")
+        print(f"• Image Encoder    : {cnn_arch.upper()} ({'Pretrained' if cnn_pretrained else 'From-scratch'}, {'Frozen' if cnn_freeze else 'Unfrozen'})")
+        print(f"• Question Encoder : LSTM ({num_lstm_layers} layers, Hidden: {lstm_hidden_dim})")
+        print(f"• Attention        : {'Active' if use_attention else 'None'}")
+        print(f"• Answer Decoder   : LSTM ({num_lstm_layers} layers, Vocab: {answer_vocab_size})")
+        print(f"{'-'*60}")
+        print(f"Total Parameters   : {total_params/1e6:.2f} M")
+        print(f"Trainable Params   : {trainable_params/1e6:.2f} M")
         print(f"{'='*60}\n")
     
     def forward(self, images, questions, question_lengths=None, target_answers=None, teacher_forcing_ratio=0.5):

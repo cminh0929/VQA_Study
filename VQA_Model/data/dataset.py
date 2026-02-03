@@ -55,12 +55,7 @@ class VQADataset(Dataset):
         # Image transforms
         self.transform = ImageTransform(image_size=image_size, use_pretrained=use_pretrained)
         
-        print(f"Loaded VQADataset:")
-        print(f"  - Annotations: {len(self.annotations)}")
-        print(f"  - Image dir: {image_dir}")
-        print(f"  - Max question len: {max_question_len}")
-        print(f"  - Max answer len: {max_answer_len}")
-        print(f"  - Training mode: {is_training}")
+
     
     def __len__(self) -> int:
         return len(self.annotations)

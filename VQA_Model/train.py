@@ -47,7 +47,20 @@ def train_model(
     question_vocab = Vocabulary.load(q_vocab_path)
     answer_vocab = Vocabulary.load(a_vocab_path)
     
-    # Create dataloaders
+    # Create model first to get its configuration
+    print(f"Creating Model {model_id}...")
+    model = create_model_variant(
+        model_id=model_id,
+        question_vocab_size=len(question_vocab),
+        answer_vocab_size=len(answer_vocab)
+    )
+    
+    # NEW: Automatically unfreeze CNN if it's a from-scratch model
+    if not model.cnn_pretrained:
+        print(f"  (!) From-scratch model detected. Unfreezing CNN weights for training...")
+        model.cnn_encoder.unfreeze()
+    
+    # Create dataloaders with the correct normalization flag
     print("Creating dataloaders...")
     train_loader, val_loader, test_loader = create_dataloaders(
         train_json=train_json,
@@ -58,18 +71,11 @@ def train_model(
         answer_vocab=answer_vocab,
         batch_size=batch_size,
         num_workers=4,
-        use_pretrained=True  # Will be overridden by model config
-    )
-    
-    # Create model
-    print(f"Creating Model {model_id}...")
-    model = create_model_variant(
-        model_id=model_id,
-        question_vocab_size=len(question_vocab),
-        answer_vocab_size=len(answer_vocab)
+        use_pretrained=model.cnn_pretrained  # Correctly synced with model
     )
     
     # Optimizer and loss
+    # If using from-scratch, we might need a different LR or weight decay
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     criterion = nn.CrossEntropyLoss(ignore_index=0)  # Ignore padding
     

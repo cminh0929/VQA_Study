@@ -44,6 +44,9 @@ class LSTMDecoder(nn.Module):
         # Input projection (fused features → hidden_dim)
         self.input_proj = nn.Linear(input_dim, hidden_dim)
         
+        # CRITICAL FIX: Cell state projection for better memory initialization
+        self.cell_proj = nn.Linear(input_dim, hidden_dim)
+        
         # LSTM
         self.lstm = nn.LSTM(
             input_size=embed_dim + hidden_dim,  # word + context
@@ -63,6 +66,7 @@ class LSTMDecoder(nn.Module):
         print(f"  Hidden dim: {hidden_dim}")
         print(f"  Input dim: {input_dim}")
         print(f"  Num layers: {num_layers}")
+
     
     def forward(self, fused_features, target_answers=None, max_len=10, teacher_forcing_ratio=0.5):
         """
@@ -79,12 +83,13 @@ class LSTMDecoder(nn.Module):
         """
         batch_size = fused_features.size(0)
         
-        # Project fused features
+        # Project fused features to hidden and cell states
         context = self.input_proj(fused_features)  # (B, hidden_dim)
         
-        # Initialize hidden state with context
+        # CRITICAL FIX: Initialize BOTH hidden and cell states from context
         hidden = context.unsqueeze(0).repeat(self.num_layers, 1, 1)  # (num_layers, B, hidden_dim)
-        cell = torch.zeros_like(hidden)
+        cell_init = self.cell_proj(fused_features)  # (B, hidden_dim)
+        cell = cell_init.unsqueeze(0).repeat(self.num_layers, 1, 1)  # (num_layers, B, hidden_dim)
         
         # Start token (<SOS> = 2)
         input_word = torch.full((batch_size,), 2, dtype=torch.long, device=fused_features.device)
@@ -131,12 +136,13 @@ class LSTMDecoder(nn.Module):
         batch_size = fused_features.size(0)
         device = fused_features.device
         
-        # Project features
+        # Project features to hidden and cell states
         context = self.input_proj(fused_features)
         
-        # Initialize hidden
+        # Initialize BOTH hidden and cell states
         hidden = context.unsqueeze(0).repeat(self.num_layers, 1, 1)
-        cell = torch.zeros_like(hidden)
+        cell_init = self.cell_proj(fused_features)
+        cell = cell_init.unsqueeze(0).repeat(self.num_layers, 1, 1)
         
         # Start token
         input_word = torch.full((batch_size,), sos_idx, dtype=torch.long, device=device)

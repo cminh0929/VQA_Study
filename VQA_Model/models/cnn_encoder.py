@@ -16,38 +16,66 @@ class CNNEncoder(nn.Module):
         arch: str = 'resnet50',
         pretrained: bool = True,
         freeze: bool = True,
-        feature_dim: int = None
+        feature_dim: int = None,
+        return_spatial: bool = False
     ):
         """
         Args:
             arch: CNN architecture ('resnet50' or 'vgg16')
             pretrained: Whether to use pretrained weights
-            freeze: Whether to freeze CNN parameters
+            freeze: Whether to freeze CNN parameters (auto-set to False if pretrained=False)
             feature_dim: Output feature dimension (None = use default)
+            return_spatial: If True, return spatial features (B, 49, C) for attention
         """
         super(CNNEncoder, self).__init__()
         
         self.arch = arch
         self.pretrained = pretrained
+        self.return_spatial = return_spatial
+        
+        # CRITICAL FIX: From-scratch models should NOT be frozen
+        if not pretrained and freeze:
+            print(f"⚠️  WARNING: From-scratch {arch} should not be frozen. Auto-unfreezing...")
+            freeze = False
+        
         self.freeze = freeze
         
-        # Load pretrained model
+        # Load model
         if arch == 'resnet50':
-            self.cnn = models.resnet50(pretrained=pretrained)
-            # Remove final FC layer
-            self.cnn = nn.Sequential(*list(self.cnn.children())[:-1])
-            self.default_feature_dim = 2048
+            base_model = models.resnet50(pretrained=pretrained)
+            
+            if return_spatial:
+                # Keep conv layers, remove avgpool and fc
+                # Output: (B, 2048, 7, 7)
+                self.cnn = nn.Sequential(*list(base_model.children())[:-2])
+                self.default_feature_dim = 2048
+                self.num_regions = 49  # 7x7
+            else:
+                # Remove final FC layer only
+                # Output: (B, 2048, 1, 1) -> (B, 2048)
+                self.cnn = nn.Sequential(*list(base_model.children())[:-1])
+                self.default_feature_dim = 2048
         
         elif arch == 'vgg16':
-            self.cnn = models.vgg16(pretrained=pretrained)
-            # Remove classifier, keep features + avgpool
-            self.cnn = nn.Sequential(
-                self.cnn.features,
-                nn.AdaptiveAvgPool2d((7, 7)),
-                nn.Flatten(),
-                *list(self.cnn.classifier.children())[:-1]  # Remove last FC
-            )
-            self.default_feature_dim = 4096
+            base_model = models.vgg16(pretrained=pretrained)
+            
+            if return_spatial:
+                # Keep features, output (B, 512, 7, 7)
+                self.cnn = nn.Sequential(
+                    base_model.features,
+                    nn.AdaptiveAvgPool2d((7, 7))
+                )
+                self.default_feature_dim = 512
+                self.num_regions = 49  # 7x7
+            else:
+                # Full features + classifier (without last FC)
+                self.cnn = nn.Sequential(
+                    base_model.features,
+                    nn.AdaptiveAvgPool2d((7, 7)),
+                    nn.Flatten(),
+                    *list(base_model.classifier.children())[:-1]
+                )
+                self.default_feature_dim = 4096
         
         else:
             raise ValueError(f"Unsupported architecture: {arch}")
@@ -56,6 +84,9 @@ class CNNEncoder(nn.Module):
         if freeze:
             for param in self.cnn.parameters():
                 param.requires_grad = False
+            print(f"Froze {arch} parameters (pretrained={pretrained})")
+        else:
+            print(f"Trainable {arch} parameters (pretrained={pretrained})")
         
         # Optional projection layer
         self.feature_dim = feature_dim if feature_dim else self.default_feature_dim
@@ -68,7 +99,9 @@ class CNNEncoder(nn.Module):
         print(f"  Architecture: {arch}")
         print(f"  Pretrained: {pretrained}")
         print(f"  Frozen: {freeze}")
+        print(f"  Return spatial: {return_spatial}")
         print(f"  Output dim: {self.feature_dim}")
+
     
     def forward(self, images):
         """
@@ -78,19 +111,34 @@ class CNNEncoder(nn.Module):
             images: Tensor (B, 3, 224, 224)
         
         Returns:
-            features: Tensor (B, feature_dim)
+            If return_spatial=False:
+                features: Tensor (B, feature_dim)
+            If return_spatial=True:
+                features: Tensor (B, num_regions, feature_dim)
         """
         # Extract features
         with torch.set_grad_enabled(not self.freeze):
             features = self.cnn(images)
         
-        # Flatten if needed (ResNet50 outputs (B, 2048, 1, 1))
-        if features.dim() > 2:
-            features = features.view(features.size(0), -1)
-        
-        # Project if needed
-        if self.projection is not None:
-            features = self.projection(features)
+        if self.return_spatial:
+            # Spatial features: (B, C, 7, 7) -> (B, 49, C)
+            batch_size = features.size(0)
+            channels = features.size(1)
+            features = features.view(batch_size, channels, -1)  # (B, C, 49)
+            features = features.permute(0, 2, 1)  # (B, 49, C)
+            
+            # Project if needed
+            if self.projection is not None:
+                # Project each region
+                features = self.projection(features)  # (B, 49, feature_dim)
+        else:
+            # Global features: Flatten if needed
+            if features.dim() > 2:
+                features = features.view(features.size(0), -1)
+            
+            # Project if needed
+            if self.projection is not None:
+                features = self.projection(features)
         
         return features
     
