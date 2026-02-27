@@ -7,7 +7,7 @@ import torch
 import argparse
 from PIL import Image
 
-from data import Vocabulary, get_transform
+from data import Vocabulary, get_val_transforms
 from models import create_model_variant
 
 
@@ -42,7 +42,7 @@ def answer_question(model, image_path: str, question: str, q_vocab, a_vocab, dev
     """Answer a question about an image"""
     # Load and preprocess image
     image = Image.open(image_path).convert('RGB')
-    transform = get_transform(use_pretrained=True, is_training=False)
+    transform = get_val_transforms(use_pretrained=True)
     image_tensor = transform(image).unsqueeze(0).to(device)  # (1, 3, 224, 224)
     
     # Encode question

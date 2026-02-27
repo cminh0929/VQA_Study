@@ -91,5 +91,5 @@ yolov8*.pt
 !VQA_Model/data/question_vocab.json
 !VQA_Model/data/answer_vocab.json
 
-# Keep annotations (if not too large)
-!Data_prep/data/annotations/*.json
+# Keep annotations (including subfolders small/ full/)
+!Data_prep/data/annotations/**/*.json

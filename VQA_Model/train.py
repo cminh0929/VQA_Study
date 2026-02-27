@@ -18,7 +18,8 @@ def train_model(
     num_epochs: int = 20,
     batch_size: int = 32,
     learning_rate: float = 0.001,
-    device: str = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device: str = 'cuda' if torch.cuda.is_available() else 'cpu',
+    dataset: str = 'small'
 ):
     """
     Train a single model variant
@@ -34,13 +35,17 @@ def train_model(
     print(f"TRAINING MODEL {model_id}")
     print(f"{'='*80}\n")
     
-    # Paths
-    train_json = r'..\Data_prep\data\annotations\train.json'
-    val_json = r'..\Data_prep\data\annotations\val.json'
-    test_json = r'..\Data_prep\data\annotations\test.json'
+    # Paths - support small/full dataset
+    ann_dir = rf'..\Data_prep\data\annotations\{dataset}'
+    train_json = os.path.join(ann_dir, 'train.json')
+    val_json = os.path.join(ann_dir, 'val.json')
+    test_json = os.path.join(ann_dir, 'test.json')
     image_dir = r'..\Data_prep\data\images'
     q_vocab_path = r'data\question_vocab.json'
     a_vocab_path = r'data\answer_vocab.json'
+    
+    print(f"Dataset: {dataset.upper()}")
+    print(f"Annotations: {ann_dir}")
     
     # Load vocabularies
     print("Loading vocabularies...")
@@ -70,7 +75,7 @@ def train_model(
         question_vocab=question_vocab,
         answer_vocab=answer_vocab,
         batch_size=batch_size,
-        num_workers=4,
+        num_workers=0,  # 0 for Windows compatibility
         use_pretrained=model.cnn_pretrained  # Correctly synced with model
     )
     
@@ -118,6 +123,8 @@ def main():
                        help='Learning rate')
     parser.add_argument('--device', type=str, default='cuda' if torch.cuda.is_available() else 'cpu',
                        help='Device to train on')
+    parser.add_argument('--dataset', type=str, default='small', choices=['small', 'full'],
+                       help='Dataset to use: small (dog+cat) or full (10 animals)')
     
     args = parser.parse_args()
     
@@ -141,7 +148,8 @@ def main():
             num_epochs=args.epochs,
             batch_size=args.batch_size,
             learning_rate=args.lr,
-            device=args.device
+            device=args.device,
+            dataset=args.dataset
         )
     else:
         # Train all 8 models
@@ -152,7 +160,8 @@ def main():
                 num_epochs=args.epochs,
                 batch_size=args.batch_size,
                 learning_rate=args.lr,
-                device=args.device
+                device=args.device,
+                dataset=args.dataset
             )
         
         print(f"\n{'='*80}")

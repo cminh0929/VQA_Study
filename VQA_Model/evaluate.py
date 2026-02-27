@@ -17,7 +17,8 @@ def evaluate_model(
     checkpoint_path: str = None,
     batch_size: int = 32,
     device: str = 'cuda' if torch.cuda.is_available() else 'cpu',
-    save_predictions: bool = True
+    save_predictions: bool = True,
+    dataset: str = 'small'
 ):
     """
     Evaluate a single model variant
@@ -33,18 +34,29 @@ def evaluate_model(
     print(f"EVALUATING MODEL {model_id}")
     print(f"{'='*80}\n")
     
-    # Paths
-    train_json = r'..\Data_prep\data\annotations\train.json'
-    val_json = r'..\Data_prep\data\annotations\val.json'
-    test_json = r'..\Data_prep\data\annotations\test.json'
+    # Paths - support small/full dataset
+    ann_dir = rf'..\Data_prep\data\annotations\{dataset}'
+    train_json = os.path.join(ann_dir, 'train.json')
+    val_json = os.path.join(ann_dir, 'val.json')
+    test_json = os.path.join(ann_dir, 'test.json')
     image_dir = r'..\Data_prep\data\images'
     q_vocab_path = r'data\question_vocab.json'
     a_vocab_path = r'data\answer_vocab.json'
+    
+    print(f"Dataset: {dataset.upper()}")
     
     # Load vocabularies
     print("Loading vocabularies...")
     question_vocab = Vocabulary.load(q_vocab_path)
     answer_vocab = Vocabulary.load(a_vocab_path)
+    
+    # Create model first to determine pretrained flag
+    print(f"Creating Model {model_id}...")
+    model = create_model_variant(
+        model_id=model_id,
+        question_vocab_size=len(question_vocab),
+        answer_vocab_size=len(answer_vocab)
+    )
     
     # Create dataloaders
     print("Creating dataloaders...")
@@ -56,17 +68,11 @@ def evaluate_model(
         question_vocab=question_vocab,
         answer_vocab=answer_vocab,
         batch_size=batch_size,
-        num_workers=4,
-        use_pretrained=True
+        num_workers=0,
+        use_pretrained=model.cnn_pretrained
     )
     
-    # Create model
-    print(f"Creating Model {model_id}...")
-    model = create_model_variant(
-        model_id=model_id,
-        question_vocab_size=len(question_vocab),
-        answer_vocab_size=len(answer_vocab)
-    )
+    # Model already created above
     
     # Load checkpoint
     if checkpoint_path is None:
@@ -116,6 +122,8 @@ def main():
                        help='Device to evaluate on')
     parser.add_argument('--save_predictions', action='store_true',
                        help='Save predictions to file')
+    parser.add_argument('--dataset', type=str, default='small', choices=['small', 'full'],
+                       help='Dataset to use: small (dog+cat) or full (10 animals)')
     
     args = parser.parse_args()
     
@@ -138,7 +146,8 @@ def main():
             checkpoint_path=args.checkpoint,
             batch_size=args.batch_size,
             device=args.device,
-            save_predictions=args.save_predictions
+            save_predictions=args.save_predictions,
+            dataset=args.dataset
         )
     else:
         # Evaluate all 8 models
@@ -148,10 +157,11 @@ def main():
         for model_id in range(1, 9):
             metrics = evaluate_model(
                 model_id=model_id,
-                checkpoint_path=None,  # Use default path
+                checkpoint_path=None,
                 batch_size=args.batch_size,
                 device=args.device,
-                save_predictions=args.save_predictions
+                save_predictions=args.save_predictions,
+                dataset=args.dataset
             )
             all_results[f'model_{model_id}'] = metrics
         
