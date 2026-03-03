@@ -250,6 +250,7 @@ class VQATrainer:
             checkpoint['metrics'] = metrics
         
         path = os.path.join(self.checkpoint_dir, filename)
+        os.makedirs(self.checkpoint_dir, exist_ok=True)
         torch.save(checkpoint, path)
     
     def load_checkpoint(self, filename: str):

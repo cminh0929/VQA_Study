@@ -18,15 +18,15 @@ import torch
 import torch.nn as nn
 
 # ============================================================================
-#  CONFIG —
+#  CONFIG — Edit all settings here
 # ============================================================================
 
 CONFIG = {
     # --- Model ---
-    'model_id': 1,           # 1-8 (xem bảng model bên dưới)
+    'model_id': 2,           # 1-8 (see model table below)
     
     # --- Dataset ---
-    'dataset': 'small',      # 'small' (dog+cat) hoặc 'full' (10 animals)
+    'dataset': 'full',      # 'small' (dog+cat) or 'full' (10 animals)
     
     # --- Training ---
     'epochs': 5,
@@ -37,10 +37,10 @@ CONFIG = {
     
     # --- Hardware ---
     'device': 'cuda' if torch.cuda.is_available() else 'cpu',
-    'num_workers': 0,        # 0 cho Windows, 4 cho Linux
+    'num_workers': 0,        # 0 for Windows, 4 for Linux
     
     # --- Save ---
-    'save_every': 5,         # Save checkpoint mỗi N epochs
+    'save_every': 5,         # Save checkpoint every N epochs
     'save_predictions': True,
 }
 
@@ -61,7 +61,7 @@ CONFIG = {
 
 
 # ============================================================================
-#  PATHS (tự động, thường không cần sửa)
+#  PATHS (auto-generated, usually no need to modify)
 # ============================================================================
 
 def get_paths(dataset='small'):
@@ -250,7 +250,7 @@ def cmd_evaluate():
 
 
 # ============================================================================
-#  COMPARE — So sánh tất cả models đã train
+#  COMPARE — Compare all trained models
 # ============================================================================
 
 def cmd_compare():

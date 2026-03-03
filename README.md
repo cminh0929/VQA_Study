@@ -1,116 +1,117 @@
 # VQA Project - Visual Question Answering
 
-Dự án VQA (Visual Question Answering) - Trả lời câu hỏi về hình ảnh.
+A Visual Question Answering system that answers questions about images using CNN-LSTM architecture.
 
-## Mục Tiêu
+## Objective
 
-Xây dựng hệ thống VQA sử dụng **CNN-LSTM với LSTM Decoder** để trả lời câu hỏi về hình ảnh động vật.
+Build a VQA system using **CNN-LSTM with LSTM Decoder** to answer questions about animal images.
 
-**Mục tiêu chính:**
-- ⭐ **Nhận diện động vật**: "What animal is in the image?" → dog, cat, bird...
-- ⭐ **Nhận diện màu sắc**: "What color is the dog?" → black, white, brown...
-- ⭐ **Câu hỏi Yes/No**: "Is there a cat?" → yes, no
+**Primary goals:**
+- ⭐ **Animal Recognition**: "What animal is in the image?" → dog, cat, bird...
+- ⭐ **Color Recognition**: "What color is the dog?" → black, white, brown...
+- ⭐ **Yes/No Questions**: "Is there a cat?" → yes, no
+- ⚠️ **Simple Counting**: "How many dogs?" → 1, 2, 3
 
-**Mục tiêu thử nghiệm:**
-- ⚠️ **Đếm số lượng đơn giản**: "How many dogs?" → 1, 2, 3
-  - *Lưu ý: Đây là task khó cho CNN-only models, kết quả thấp là expected*
-
-**So sánh 8 biến thể mô hình:**
+**Compare 8 model variants:**
 - Attention vs No Attention
 - Pretrained vs From-scratch
 - ResNet50 vs VGG16
 
 ## Requirements
 
-### ⚠️ Python Version
-**REQUIRED: Python 3.10.x**
+- **Python**: 3.10.x
+- **GPU**: NVIDIA GPU with CUDA support (recommended)
+- **RAM**: Minimum 16GB
 
-Dự án này yêu cầu Python 3.10 để đảm bảo tương thích với tất cả dependencies.
-
-### System Requirements
-- **Python**: 3.10.x (REQUIRED)
-- **GPU**: NVIDIA GPU với CUDA support (recommended cho training)
-- **RAM**: Tối thiểu 16GB
-- **Storage**: Tối thiểu 50GB cho data và checkpoints
-
-## Setup Instructions
-
-### 1. Tạo Virtual Environment với Python 3.10
+## Setup
 
 ```bash
-# Windows
+# 1. Create Virtual Environment
 py -3.10 -m venv venv
 venv\Scripts\activate
 
-# Linux/Mac
-python3.10 -m venv venv
-source venv/bin/activate
-```
-
-### 2. Cài đặt Dependencies
-
-```bash
+# 2. Install Dependencies
 pip install -r requirements.txt
 ```
 
-### 3. Cài đặt spaCy Language Model
-
-```bash
-python -m spacy download en_core_web_sm
-```
-
-### 4. (Optional) Cài đặt PyTorch với CUDA
-
-Nếu có GPU NVIDIA, cài PyTorch với CUDA support:
-
-```bash
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
-```
-
-## Cấu Trúc Dự Án
+## Project Structure
 
 ```
-VQA_Workspace/ (Root)
-├── Data_prep/              # Chuẩn bị dữ liệu từ COCO
-│   ├── code/               # Scripts xử lý/lọc dữ liệu
-│   └── data/               # Chứa dữ liệu thô (đã bị ignore)
-├── VQA_Model/              # Mã nguồn chính của mô hình VQA
-│   ├── configs/            # Cấu hình thí nghiệm
-│   ├── models/             # Kiến trúc mô hình (CNN, RNN, Attention)
-│   ├── engine/             # Logic training và evaluation
-│   ├── utils/              # Tiện ích bổ trợ (Logger, Visualization)
-│   └── data/               # Dataloader và xử lý ngôn ngữ
-├── requirements.txt        # Python dependencies
-├── .gitignore              # Cấu hình Git toàn cục
-├── README.md               # Hướng dẫn dự án
-└── PROJECT_PLAN.md         # Kế hoạch phát triển
+VQA_Workspace/
+├── Data_prep/                  # Data preparation from COCO
+│   ├── improve_annotations.py  # Generate V2 annotations (K-Means + YOLO)
+│   ├── split_dataset.py        # Split train/val/test (small + full)
+│   └── data/                   # Images and annotations
+│       └── annotations/
+│           ├── small/          # Dog + Cat only
+│           └── full/           # 10 animal species
+│
+├── VQA_Model/                  # VQA Model
+│   ├── main.py                 # Main entry point
+│   ├── models/                 # CNN, LSTM, Attention, Decoder
+│   ├── engine/                 # Trainer, Evaluator
+│   ├── data/                   # Dataset, Vocabulary, Transforms
+│   └── utils/                  # Metrics, Visualization
+│
+├── requirements.txt
+├── PROJECT_PLAN.md             # Detailed project plan
+└── README.md                   # Overview
 ```
 
-## Quick Start
+## Usage
 
-### Data Preparation
-
-```bash
-# Bước 1: Lọc ảnh có động vật bằng YOLO
-cd Data_prep/code/filter
-py -3.10 animal_filter.py
-
-# Bước 2: Sinh Q&A annotations (coming soon)
-cd ../scripts
-py -3.10 generate_vqa_annotations.py
-
-# Bước 3: Chia train/val/test (coming soon)
-py -3.10 split_dataset.py
-```
-
-### Model Training (Coming Soon)
+All operations are performed through `main.py`:
 
 ```bash
 cd VQA_Model
-python train.py --config configs/model1_resnet50_pretrained_no_attn.yaml
+
+# Build vocabulary (run once when switching datasets)
+py -3.10 main.py build_vocab
+
+# Train model (edit model_id in CONFIG)
+py -3.10 main.py train
+
+# Evaluate on test set
+py -3.10 main.py evaluate
+
+# Train + Evaluate in sequence
+py -3.10 main.py both
+
+# Compare all trained models
+py -3.10 main.py compare
 ```
+
+Edit configuration in the `CONFIG` section at the top of `main.py`:
+```python
+CONFIG = {
+    'model_id': 2,           # 1-8
+    'dataset': 'small',      # 'small' or 'full'
+    'epochs': 5,
+    'batch_size': 32,
+    ...
+}
+```
+
+## 8 Model Variants
+
+| ID | CNN | Pretrained | Attention |
+|----|-----|------------|-----------|
+| 1 | ResNet50 | ✅ | ❌ |
+| 2 | ResNet50 | ✅ | ✅ |
+| 3 | ResNet50 | ❌ | ❌ |
+| 4 | ResNet50 | ❌ | ✅ |
+| 5 | VGG16 | ✅ | ❌ |
+| 6 | VGG16 | ✅ | ✅ |
+| 7 | VGG16 | ❌ | ❌ |
+| 8 | VGG16 | ❌ | ✅ |
+
+## Evaluation Metrics
+
+- **Accuracy**: Exact match
+- **BLEU-1 / BLEU-4**: N-gram precision
+- **F1 Score**: Word-level precision & recall
+- **Per-category**: Animal, Color, Yes/No, Counting
 
 ## Documentation
 
-- **PROJECT_PLAN.md**: Kế hoạch chi tiết dự án, kiến trúc mô hình, metrics
-- **Data_prep/PREDATA_GUIDE.md**: Hướng dẫn về vai trò của YOLO trong data preparation
+- **PROJECT_PLAN.md**: Detailed project plan, model architecture, metrics

@@ -25,7 +25,7 @@ def load_model(model_id: int, checkpoint_path: str, device: str = 'cuda'):
     )
     
     # Load checkpoint
-    checkpoint = torch.load(checkpoint_path, map_location=device)
+    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
     model.load_state_dict(checkpoint['model_state_dict'])
     model.to(device)
     model.eval()

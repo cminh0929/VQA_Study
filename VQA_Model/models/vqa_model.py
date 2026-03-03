@@ -1,6 +1,6 @@
 """
 Complete VQA Model
-Combines CNN Encoder, LSTM Encoder, Attention, and LSTM Decoder
+Combines CNN Encoder, LSTM Encoder, Spatial Attention, and LSTM Decoder
 Supports 8 model variants
 """
 
@@ -9,12 +9,12 @@ import torch.nn as nn
 
 from .cnn_encoder import CNNEncoder
 from .lstm_encoder import LSTMEncoder
-from .attention import AttentionModule
+from .attention import SpatialAttention
 from .lstm_decoder import LSTMDecoder
 
 
 class VQAModel(nn.Module):
-    """Complete VQA Model"""
+    """Complete VQA Model with Spatial Attention"""
     
     def __init__(
         self,
@@ -39,31 +39,18 @@ class VQAModel(nn.Module):
         num_lstm_layers: int = 2,
         dropout: float = 0.5
     ):
-        """
-        Args:
-            question_vocab_size: Question vocabulary size
-            answer_vocab_size: Answer vocabulary size
-            cnn_arch: CNN architecture ('resnet50' or 'vgg16')
-            cnn_pretrained: Use pretrained CNN
-            cnn_freeze: Freeze CNN parameters
-            use_attention: Use attention mechanism
-            embed_dim: Word embedding dimension
-            lstm_hidden_dim: LSTM hidden dimension
-            attn_dim: Attention dimension
-            num_lstm_layers: Number of LSTM layers
-            dropout: Dropout probability
-        """
         super(VQAModel, self).__init__()
         
         self.use_attention = use_attention
         self.cnn_arch = cnn_arch
         self.cnn_pretrained = cnn_pretrained
         
-        # CNN Encoder
+        # CNN Encoder — return spatial features when using attention
         self.cnn_encoder = CNNEncoder(
             arch=cnn_arch,
             pretrained=cnn_pretrained,
-            freeze=cnn_freeze
+            freeze=cnn_freeze,
+            return_spatial=use_attention  # (B, 49, C) for attention, (B, C) otherwise
         )
         img_dim = self.cnn_encoder.feature_dim
         
@@ -78,18 +65,19 @@ class VQAModel(nn.Module):
         )
         q_dim = self.question_encoder.output_dim
         
-        # Attention (optional)
+        # Spatial Attention (optional)
         if use_attention:
-            self.attention = AttentionModule(
+            self.attention = SpatialAttention(
                 img_dim=img_dim,
                 q_dim=q_dim,
-                attn_dim=attn_dim
+                attn_dim=attn_dim,
+                num_regions=self.cnn_encoder.num_regions  # 49 (7x7)
             )
-            # Fused dimension: attended_img + question
+            # After attention: attended_img (B, img_dim) + question (B, q_dim)
             fused_dim = img_dim + q_dim
         else:
             self.attention = None
-            # Fused dimension: img + question
+            # No attention: global img (B, img_dim) + question (B, q_dim)
             fused_dim = img_dim + q_dim
         
         # LSTM Answer Decoder
@@ -111,7 +99,7 @@ class VQAModel(nn.Module):
         print(f"{'='*60}")
         print(f"• Image Encoder    : {cnn_arch.upper()} ({'Pretrained' if cnn_pretrained else 'From-scratch'}, {'Frozen' if cnn_freeze else 'Unfrozen'})")
         print(f"• Question Encoder : LSTM ({num_lstm_layers} layers, Hidden: {lstm_hidden_dim})")
-        print(f"• Attention        : {'Active' if use_attention else 'None'}")
+        print(f"• Attention        : {'Spatial (7x7)' if use_attention else 'None'}")
         print(f"• Answer Decoder   : LSTM ({num_lstm_layers} layers, Vocab: {answer_vocab_size})")
         print(f"{'-'*60}")
         print(f"Total Parameters   : {total_params/1e6:.2f} M")
@@ -131,10 +119,12 @@ class VQAModel(nn.Module):
         
         Returns:
             outputs: Tensor (B, max_a_len, answer_vocab_size)
-            attention_weights: Tensor (B, 1) or None
+            attention_weights: Tensor (B, 49) or None
         """
         # Encode image
-        img_features = self.cnn_encoder(images)  # (B, img_dim)
+        img_features = self.cnn_encoder(images)
+        # With attention: (B, 49, img_dim)
+        # Without attention: (B, img_dim)
         
         # Encode question
         q_features = self.question_encoder(questions, question_lengths)  # (B, q_dim)
@@ -142,11 +132,10 @@ class VQAModel(nn.Module):
         # Attention (optional)
         attention_weights = None
         if self.use_attention:
-            img_features_attended, attention_weights = self.attention(img_features, q_features)
-            # Fuse attended image + question
-            fused_features = torch.cat([img_features_attended, q_features], dim=1)
+            # Spatial attention: (B, 49, img_dim) → (B, img_dim)
+            img_attended, attention_weights = self.attention(img_features, q_features)
+            fused_features = torch.cat([img_attended, q_features], dim=1)
         else:
-            # Fuse image + question directly
             fused_features = torch.cat([img_features, q_features], dim=1)
         
         # Decode answer
@@ -163,15 +152,9 @@ class VQAModel(nn.Module):
         """
         Generate answer (inference mode)
         
-        Args:
-            images: Tensor (B, 3, 224, 224)
-            questions: Tensor (B, max_q_len)
-            question_lengths: Tensor (B,)
-            max_len: Maximum answer length
-        
         Returns:
             generated: Tensor (B, max_len) - word indices
-            attention_weights: Tensor (B, 1) or None
+            attention_weights: Tensor (B, 49) or None
         """
         # Encode
         img_features = self.cnn_encoder(images)
@@ -180,8 +163,8 @@ class VQAModel(nn.Module):
         # Attention
         attention_weights = None
         if self.use_attention:
-            img_features_attended, attention_weights = self.attention(img_features, q_features)
-            fused_features = torch.cat([img_features_attended, q_features], dim=1)
+            img_attended, attention_weights = self.attention(img_features, q_features)
+            fused_features = torch.cat([img_attended, q_features], dim=1)
         else:
             fused_features = torch.cat([img_features, q_features], dim=1)
         
@@ -194,7 +177,7 @@ class VQAModel(nn.Module):
         """Get descriptive model name"""
         cnn_name = self.cnn_arch.upper()
         pretrained = "Pretrained" if self.cnn_pretrained else "FromScratch"
-        attention = "WithAttn" if self.use_attention else "NoAttn"
+        attention = "SpatialAttn" if self.use_attention else "NoAttn"
         return f"{cnn_name}_{pretrained}_{attention}"
 
 
