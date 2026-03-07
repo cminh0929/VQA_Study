@@ -57,7 +57,7 @@ class VQATrainer:
         self.checkpoint_dir = checkpoint_dir
         self.log_dir = log_dir
         
-        # CRITICAL FIX: Scheduled Teacher Forcing
+        # Scheduled teacher forcing
         self.initial_teacher_forcing = teacher_forcing_ratio
         self.teacher_forcing_ratio = teacher_forcing_ratio
         self.teacher_forcing_schedule = teacher_forcing_schedule
@@ -180,14 +180,12 @@ class VQATrainer:
             num_epochs: Number of epochs to train
             save_every: Save checkpoint every N epochs
         """
-        print(f"\n{'='*80}")
         print(f"Starting training for {num_epochs} epochs")
-        print(f"{'='*80}\n")
         
         for epoch in range(num_epochs):
             self.current_epoch = epoch
             
-            # CRITICAL FIX: Update teacher forcing ratio
+            # Update teacher forcing ratio
             self.update_teacher_forcing(epoch, num_epochs)
             
             # Train
@@ -220,7 +218,7 @@ class VQATrainer:
             if val_metrics['accuracy'] > self.best_val_accuracy:
                 self.best_val_accuracy = val_metrics['accuracy']
                 self.save_checkpoint('best_model.pth', val_metrics)
-                print(f"  ✓ Saved best model (accuracy: {self.best_val_accuracy:.4f})")
+                print(f"  Best model saved (accuracy: {self.best_val_accuracy:.4f})")
             
             # Save periodic checkpoint
             if (epoch + 1) % save_every == 0:
@@ -228,10 +226,7 @@ class VQATrainer:
             
             print()
         
-        print(f"{'='*80}")
-        print(f"Training complete!")
-        print(f"Best validation accuracy: {self.best_val_accuracy:.4f}")
-        print(f"{'='*80}\n")
+        print(f"Training complete. Best validation accuracy: {self.best_val_accuracy:.4f}")
         
         # Save training history
         self.save_history()
@@ -274,6 +269,3 @@ class VQATrainer:
         print(f"Saved training history to {path}")
 
 
-# Example usage
-if __name__ == "__main__":
-    print("Trainer module - use in train.py")

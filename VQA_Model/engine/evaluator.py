@@ -50,9 +50,7 @@ class VQAEvaluator:
         tracker = MetricsTracker()
         all_predictions = []
         
-        print(f"\n{'='*80}")
         print("Evaluating model on test set")
-        print(f"{'='*80}\n")
         
         with torch.no_grad():
             for batch in tqdm(self.test_loader, desc="Evaluating"):
@@ -101,9 +99,7 @@ class VQAEvaluator:
     
     def print_results(self, metrics: Dict):
         """Print evaluation results"""
-        print(f"\n{'='*80}")
-        print("EVALUATION RESULTS")
-        print(f"{'='*80}\n")
+        print("EVALUATION RESULTS\n")
         
         print(f"Overall Metrics:")
         print(f"  Accuracy: {metrics['accuracy']:.4f}")
@@ -123,7 +119,7 @@ class VQAEvaluator:
                       f"{cat_metrics['bleu1']:<12.4f} {cat_metrics['f1']:<12.4f} "
                       f"{cat_metrics['count']:<8}")
         
-        print(f"\n{'='*80}\n")
+
     
     def save_predictions(self, predictions: List[Dict], metrics: Dict, output_file: str):
         """Save predictions to JSON file"""
@@ -138,6 +134,3 @@ class VQAEvaluator:
         print(f"Saved predictions to {output_file}")
 
 
-# Example usage
-if __name__ == "__main__":
-    print("Evaluator module - use in evaluate.py")

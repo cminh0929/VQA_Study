@@ -170,9 +170,7 @@ def build_vqa_vocabularies(
         answer_vocab_path: Output path for answer vocabulary
         min_word_freq: Minimum word frequency
     """
-    print("="*60)
-    print("BUILDING VQA VOCABULARIES")
-    print("="*60)
+    print("Building VQA vocabularies...")
     
     # Load training data
     print(f"\nLoading training data from {train_json_path}...")
@@ -196,28 +194,11 @@ def build_vqa_vocabularies(
     answer_vocab.build_vocab(answers)
     answer_vocab.save(answer_vocab_path)
     
-    print("\n" + "="*60)
-    print("VOCABULARY BUILDING COMPLETE")
-    print("="*60)
-    print(f"Question vocabulary size: {len(question_vocab)}")
-    print(f"Answer vocabulary size: {len(answer_vocab)}")
-    
-    # Show sample encodings
-    print("\nSample encodings:")
-    sample_q = questions[0]
-    sample_a = answers[0]
-    print(f"  Question: '{sample_q}'")
-    print(f"  Encoded: {question_vocab.encode(sample_q, max_length=20)}")
-    print(f"  Answer: '{sample_a}'")
-    print(f"  Encoded: {answer_vocab.encode(sample_a, max_length=10, add_sos_eos=True)}")
+    print("Vocabulary building complete.")
+    print(f"  Question vocab size : {len(question_vocab)}")
+    print(f"  Answer vocab size   : {len(answer_vocab)}")
     
     return question_vocab, answer_vocab
 
 
-if __name__ == "__main__":
-    # Example usage
-    train_json = r"c:\Users\cminh\Desktop\Code\Deeplearning\VQA_Workspace\Data_prep\data\annotations\train.json"
-    q_vocab_path = r"c:\Users\cminh\Desktop\Code\Deeplearning\VQA_Workspace\VQA_Model\data\question_vocab.json"
-    a_vocab_path = r"c:\Users\cminh\Desktop\Code\Deeplearning\VQA_Workspace\VQA_Model\data\answer_vocab.json"
-    
-    build_vqa_vocabularies(train_json, q_vocab_path, a_vocab_path, min_word_freq=1)
+

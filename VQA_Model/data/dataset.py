@@ -223,52 +223,8 @@ def create_dataloaders(
         pin_memory=True
     )
     
-    print(f"\nCreated DataLoaders:")
-    print(f"  Train: {len(train_dataset)} samples, {len(train_loader)} batches")
-    print(f"  Val:   {len(val_dataset)} samples, {len(val_loader)} batches")
-    print(f"  Test:  {len(test_dataset)} samples, {len(test_loader)} batches")
+    print(f"Dataloaders created — train: {len(train_dataset)}, val: {len(val_dataset)}, test: {len(test_dataset)} samples")
     
     return train_loader, val_loader, test_loader
 
 
-# Example usage
-if __name__ == "__main__":
-    # Paths
-    train_json = r"c:\Users\cminh\Desktop\Code\Deeplearning\VQA_Workspace\Data_prep\data\annotations\train.json"
-    image_dir = r"c:\Users\cminh\Desktop\Code\Deeplearning\VQA_Workspace\Data_prep\data\images"
-    q_vocab_path = r"c:\Users\cminh\Desktop\Code\Deeplearning\VQA_Workspace\VQA_Model\data\question_vocab.json"
-    a_vocab_path = r"c:\Users\cminh\Desktop\Code\Deeplearning\VQA_Workspace\VQA_Model\data\answer_vocab.json"
-    
-    # Load vocabularies
-    print("Loading vocabularies...")
-    question_vocab = Vocabulary.load(q_vocab_path)
-    answer_vocab = Vocabulary.load(a_vocab_path)
-    
-    # Create dataset
-    print("\nCreating dataset...")
-    dataset = VQADataset(
-        train_json, image_dir, question_vocab, answer_vocab,
-        max_question_len=20, max_answer_len=10, use_pretrained=True, is_training=True
-    )
-    
-    # Test single sample
-    print("\nTesting single sample...")
-    sample = dataset[0]
-    print(f"  Image shape: {sample['image'].shape}")
-    print(f"  Question shape: {sample['question'].shape}")
-    print(f"  Answer shape: {sample['answer'].shape}")
-    print(f"  Question: {sample['question_text']}")
-    print(f"  Answer: {sample['answer_text']}")
-    print(f"  Question encoded: {sample['question'][:10].tolist()}...")
-    print(f"  Answer encoded: {sample['answer'].tolist()}")
-    
-    # Test dataloader
-    print("\nTesting dataloader...")
-    from torch.utils.data import DataLoader
-    loader = DataLoader(dataset, batch_size=4, shuffle=True, collate_fn=collate_fn)
-    batch = next(iter(loader))
-    print(f"  Batch images shape: {batch['images'].shape}")
-    print(f"  Batch questions shape: {batch['questions'].shape}")
-    print(f"  Batch answers shape: {batch['answers'].shape}")
-    
-    print("\n✓ Dataset working correctly!")

@@ -105,9 +105,9 @@ def cmd_train():
     model_id = CONFIG['model_id']
     paths = get_paths(CONFIG['dataset'])
     
-    print(f"\n{'='*80}")
+    print(f"\n{'='*60}")
     print(f"  TRAINING MODEL {model_id} on {CONFIG['dataset'].upper()} dataset")
-    print(f"{'='*80}\n")
+    print(f"{'='*60}\n")
     
     # Load vocabularies
     print("Loading vocabularies...")
@@ -124,7 +124,7 @@ def cmd_train():
     
     # Auto-unfreeze from-scratch models
     if not model.cnn_pretrained:
-        print("  (!) From-scratch model → Unfreezing CNN weights")
+        print("  From-scratch model: unfreezing CNN weights")
         model.cnn_encoder.unfreeze()
     
     # Create dataloaders
@@ -166,10 +166,10 @@ def cmd_train():
     # Train!
     trainer.train(num_epochs=CONFIG['epochs'], save_every=CONFIG['save_every'])
     
-    print(f"\n✓ Training complete!")
-    print(f"  Best val accuracy: {trainer.best_val_accuracy:.4f}")
-    print(f"  Checkpoint: {checkpoint_dir}/best_model.pth")
-    print(f"  Logs: {log_dir}/training_history.json")
+    print(f"\nTraining complete.")
+    print(f"  Best val accuracy : {trainer.best_val_accuracy:.4f}")
+    print(f"  Checkpoint        : {checkpoint_dir}/best_model.pth")
+    print(f"  Logs              : {log_dir}/training_history.json")
 
 
 # ============================================================================
@@ -185,9 +185,9 @@ def cmd_evaluate():
     model_id = CONFIG['model_id']
     paths = get_paths(CONFIG['dataset'])
     
-    print(f"\n{'='*80}")
+    print(f"\n{'='*60}")
     print(f"  EVALUATING MODEL {model_id} on {CONFIG['dataset'].upper()} test set")
-    print(f"{'='*80}\n")
+    print(f"{'='*60}\n")
     
     # Load vocabularies
     q_vocab = Vocabulary.load(paths['q_vocab'])
@@ -251,9 +251,9 @@ def cmd_evaluate():
 
 def cmd_compare():
     """Compare all trained models."""
-    print(f"\n{'='*80}")
+    print(f"\n{'='*60}")
     print("  MODEL COMPARISON")
-    print(f"{'='*80}\n")
+    print(f"{'='*60}\n")
     
     results = {}
     for i in range(1, 5):
@@ -286,9 +286,9 @@ def cmd_compare():
               f"{m['accuracy']:>9.4f} {m['bleu1']:>8.4f} {m['f1']:>8.4f}")
     
     # Per-category for each model
-    print(f"\n{'='*80}")
+    print(f"\n{'='*60}")
     print("  PER-CATEGORY ACCURACY")
-    print(f"{'='*80}\n")
+    print(f"{'='*60}\n")
     
     categories = ['animal_recognition', 'color_recognition', 'yes_no', 'counting_simple']
     cat_header = f"{'ID':>3} | " + " | ".join(f"{c[:12]:>12}" for c in categories)
@@ -305,7 +305,7 @@ def cmd_compare():
     
     # Best model
     best_id = max(results, key=lambda k: results[k]['accuracy'])
-    print(f"\n★ Best model: Model {best_id} (Accuracy: {results[best_id]['accuracy']:.4f})")
+    print(f"\nBest model: Model {best_id} (Accuracy: {results[best_id]['accuracy']:.4f})")
 
 
 # ============================================================================
