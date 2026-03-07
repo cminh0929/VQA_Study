@@ -1,6 +1,6 @@
 """
 Main Training Script for VQA Models
-Train all 8 model variants
+Train all 4 model variants
 """
 
 import torch
@@ -25,7 +25,7 @@ def train_model(
     Train a single model variant
     
     Args:
-        model_id: Model ID (1-8)
+        model_id: Model ID (1-4)
         num_epochs: Number of epochs
         batch_size: Batch size
         learning_rate: Learning rate
@@ -114,7 +114,7 @@ def train_model(
 def main():
     parser = argparse.ArgumentParser(description='Train VQA Models')
     parser.add_argument('--model_id', type=int, default=None,
-                       help='Model ID to train (1-8). If None, train all models.')
+                       help='Model ID to train (1-4). If None, train all models.')
     parser.add_argument('--epochs', type=int, default=20,
                        help='Number of epochs')
     parser.add_argument('--batch_size', type=int, default=32,
@@ -139,8 +139,8 @@ def main():
     
     if args.model_id is not None:
         # Train single model
-        if args.model_id < 1 or args.model_id > 8:
-            print(f"Error: model_id must be between 1 and 8")
+        if args.model_id < 1 or args.model_id > 4:
+            print(f"Error: model_id must be between 1 and 4")
             return
         
         train_model(
@@ -153,8 +153,8 @@ def main():
         )
     else:
         # Train all 8 models
-        print("Training all 8 model variants...")
-        for model_id in range(1, 9):
+        print("Training all 4 model variants...")
+        for model_id in range(1, 5):
             train_model(
                 model_id=model_id,
                 num_epochs=args.epochs,

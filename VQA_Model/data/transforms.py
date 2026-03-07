@@ -17,7 +17,7 @@ def get_train_transforms(image_size: int = 224, use_pretrained: bool = True):
     Get training transforms
     
     Args:
-        image_size: Target image size (224 for ResNet50/VGG16)
+        image_size: Target image size (224 for ResNet50)
         use_pretrained: Whether using pretrained model (affects normalization)
     
     Returns:

@@ -24,7 +24,7 @@ def evaluate_model(
     Evaluate a single model variant
     
     Args:
-        model_id: Model ID (1-8)
+        model_id: Model ID (1-4)
         checkpoint_path: Path to model checkpoint
         batch_size: Batch size
         device: Device to evaluate on
@@ -113,7 +113,7 @@ def evaluate_model(
 def main():
     parser = argparse.ArgumentParser(description='Evaluate VQA Models')
     parser.add_argument('--model_id', type=int, default=None,
-                       help='Model ID to evaluate (1-8). If None, evaluate all models.')
+                       help='Model ID to evaluate (1-4). If None, evaluate all models.')
     parser.add_argument('--checkpoint', type=str, default=None,
                        help='Path to checkpoint file')
     parser.add_argument('--batch_size', type=int, default=32,
@@ -137,8 +137,8 @@ def main():
     
     if args.model_id is not None:
         # Evaluate single model
-        if args.model_id < 1 or args.model_id > 8:
-            print(f"Error: model_id must be between 1 and 8")
+        if args.model_id < 1 or args.model_id > 4:
+            print(f"Error: model_id must be between 1 and 4")
             return
         
         evaluate_model(
@@ -150,11 +150,11 @@ def main():
             dataset=args.dataset
         )
     else:
-        # Evaluate all 8 models
-        print("Evaluating all 8 model variants...")
+        # Evaluate all 4 models
+        print("Evaluating all 4 model variants...")
         all_results = {}
         
-        for model_id in range(1, 9):
+        for model_id in range(1, 5):
             metrics = evaluate_model(
                 model_id=model_id,
                 checkpoint_path=None,
@@ -173,7 +173,7 @@ def main():
         print(f"{'Model':<8} {'Accuracy':<12} {'BLEU-1':<12} {'BLEU-4':<12} {'F1':<12}")
         print("-" * 80)
         
-        for model_id in range(1, 9):
+        for model_id in range(1, 5):
             metrics = all_results[f'model_{model_id}']
             print(f"Model {model_id:<2} {metrics['accuracy']:<12.4f} "
                   f"{metrics['bleu1']:<12.4f} {metrics['bleu4']:<12.4f} "

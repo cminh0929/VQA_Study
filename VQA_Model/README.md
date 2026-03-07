@@ -13,11 +13,11 @@ VQA_Model/
 ├── analyze_results.py      # Results comparison
 │
 ├── models/                 # Model architecture
-│   ├── cnn_encoder.py      # ResNet50 / VGG16
+│   ├── cnn_encoder.py      # ResNet50
 │   ├── lstm_encoder.py     # Question encoder
 │   ├── attention.py        # Spatial Attention mechanism
 │   ├── lstm_decoder.py     # Answer decoder (autoregressive)
-│   └── vqa_model.py        # VQA model (8 variants)
+│   └── vqa_model.py        # VQA model (4 variants)
 │
 ├── engine/                 # Training & evaluation loop
 │   ├── trainer.py          # VQATrainer
@@ -50,7 +50,7 @@ py -3.10 main.py compare        # Compare all trained models
 py -3.10 main.py build_vocab    # Rebuild vocabulary
 ```
 
-## 8 Model Variants
+## 4 Model Variants
 
 | ID | CNN | Pretrained | Attention |
 |----|-----|------------|-----------|
@@ -58,10 +58,6 @@ py -3.10 main.py build_vocab    # Rebuild vocabulary
 | 2 | ResNet50 | ✅ Yes | ✅ Yes |
 | 3 | ResNet50 | ❌ No | ❌ No |
 | 4 | ResNet50 | ❌ No | ✅ Yes |
-| 5 | VGG16 | ✅ Yes | ❌ No |
-| 6 | VGG16 | ✅ Yes | ✅ Yes |
-| 7 | VGG16 | ❌ No | ❌ No |
-| 8 | VGG16 | ❌ No | ✅ Yes |
 
 ## Evaluation Metrics
 

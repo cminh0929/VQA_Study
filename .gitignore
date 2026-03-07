@@ -33,18 +33,20 @@ ENV/
 *.swp
 *.swo
 *~
-.DS_Store
 
 # Jupyter Notebook
 .ipynb_checkpoints
 *.ipynb
 
-# PyTorch
+# PyTorch model files (push riêng bằng LFS sau)
 *.pth
-*.pt
 *.ckpt
 
-# Data files (IMPORTANT: Exclude images and large files)
+# YOLO weights
+*.pt
+yolov8*.pt
+
+# Data files - images
 *.jpg
 *.jpeg
 *.png
@@ -53,15 +55,16 @@ ENV/
 *.tiff
 *.webp
 
-# Large data directories
+# Data_prep: bỏ scripts, chỉ giữ annotations
+Data_prep/scripts/
+Data_prep/split_dataset.py
 Data_prep/data/images/
 Data_prep/data/raw/
-VQA_Model/data_backup/
+Data_prep/data/vqa2_temp/
 
-# Model checkpoints and logs
+# Checkpoints (push sau bằng LFS)
 VQA_Model/checkpoints/
-VQA_Model/logs/
-VQA_Model/results/
+VQA_Model_B/checkpoints/
 
 # Temporary files
 *.log
@@ -73,23 +76,35 @@ output.txt
 Thumbs.db
 .DS_Store
 
-# YOLO weights
-*.pt
-yolov8*.pt
+# =============================================
+# FORCE INCLUDE
+# =============================================
 
-# Large JSON files (keep small ones)
-# Uncomment if annotations are too large
-# *.json
-
-# Keep these important files
+# Root
 !requirements.txt
 !.gitignore
 !README.md
-!PROJECT_PLAN.md
+!docs/
+!docs/**
 
-# Keep vocabularies (small files)
+# Data_prep: chỉ annotations
+!Data_prep/data/
+!Data_prep/data/annotations/
+!Data_prep/data/annotations/**
+!Data_prep/data/annotations/**/*.json
+
+# VQA vocab
 !VQA_Model/data/question_vocab.json
 !VQA_Model/data/answer_vocab.json
+!VQA_Model_B/data/question_vocab.json
+!VQA_Model_B/data/answer_vocab.json
 
-# Keep annotations (including subfolders small/ full/)
-!Data_prep/data/annotations/**/*.json
+# Results & logs (giữ json, bỏ ảnh png)
+!VQA_Model/results/
+!VQA_Model/results/*.json
+!VQA_Model/logs/
+!VQA_Model/logs/**
+!VQA_Model_B/results/
+!VQA_Model_B/results/*.json
+!VQA_Model_B/logs/
+!VQA_Model_B/logs/**

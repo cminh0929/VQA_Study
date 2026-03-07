@@ -114,7 +114,7 @@ def interactive_mode(model, q_vocab, a_vocab, device: str = 'cuda'):
 def main():
     parser = argparse.ArgumentParser(description='VQA Inference')
     parser.add_argument('--model_id', type=int, required=True,
-                       help='Model ID (1-8)')
+                       help='Model ID (1-4)')
     parser.add_argument('--checkpoint', type=str, default=None,
                        help='Path to checkpoint (default: checkpoints/model_{id}/best_model.pth)')
     parser.add_argument('--image', type=str, default=None,

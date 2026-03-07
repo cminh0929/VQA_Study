@@ -78,7 +78,7 @@ class SpatialAttention(nn.Module):
         img_dim: int,
         q_dim: int,
         attn_dim: int = 512,
-        num_regions: int = 49  # 7x7 for VGG16
+        num_regions: int = 49  # 7x7 spatial regions
     ):
         """
         Args:

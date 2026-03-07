@@ -12,7 +12,7 @@ def load_model_results(results_dir='results'):
     """Load results from all models"""
     model_results = {}
     
-    for i in range(1, 9):
+    for i in range(1, 5):
         result_file = os.path.join(results_dir, f'model_{i}_predictions.json')
         if os.path.exists(result_file):
             with open(result_file, 'r') as f:
@@ -53,19 +53,12 @@ def analyze_by_architecture(results):
     print("="*80)
     
     resnet_models = {k: v for k, v in results.items() if '1' in k or '2' in k or '3' in k or '4' in k}
-    vgg_models = {k: v for k, v in results.items() if '5' in k or '6' in k or '7' in k or '8' in k}
     
     if resnet_models:
         avg_resnet_acc = sum(m['accuracy'] for m in resnet_models.values()) / len(resnet_models)
         print(f"\nResNet50 Models (1-4):")
         print(f"  Average Accuracy: {avg_resnet_acc:.4f}")
         print(f"  Models: {len(resnet_models)}")
-    
-    if vgg_models:
-        avg_vgg_acc = sum(m['accuracy'] for m in vgg_models.values()) / len(vgg_models)
-        print(f"\nVGG16 Models (5-8):")
-        print(f"  Average Accuracy: {avg_vgg_acc:.4f}")
-        print(f"  Models: {len(vgg_models)}")
 
 
 def analyze_by_attention(results):
@@ -74,18 +67,18 @@ def analyze_by_attention(results):
     print("ANALYSIS BY ATTENTION MECHANISM")
     print("="*80)
     
-    # Models with attention: 2, 4, 6, 8
-    with_attn = {k: v for k, v in results.items() if any(x in k for x in ['2', '4', '6', '8'])}
-    without_attn = {k: v for k, v in results.items() if any(x in k for x in ['1', '3', '5', '7'])}
+    # Models with attention: 2, 4
+    with_attn = {k: v for k, v in results.items() if any(x in k for x in ['2', '4'])}
+    without_attn = {k: v for k, v in results.items() if any(x in k for x in ['1', '3'])}
     
     if with_attn:
         avg_with = sum(m['accuracy'] for m in with_attn.values()) / len(with_attn)
-        print(f"\nWith Attention (2, 4, 6, 8):")
+        print(f"\nWith Attention (2, 4):")
         print(f"  Average Accuracy: {avg_with:.4f}")
     
     if without_attn:
         avg_without = sum(m['accuracy'] for m in without_attn.values()) / len(without_attn)
-        print(f"\nWithout Attention (1, 3, 5, 7):")
+        print(f"\nWithout Attention (1, 3):")
         print(f"  Average Accuracy: {avg_without:.4f}")
     
     if with_attn and without_attn:

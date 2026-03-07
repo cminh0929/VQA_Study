@@ -12,10 +12,9 @@ Build a VQA system using **CNN-LSTM with LSTM Decoder** to answer questions abou
 - ⭐ **Yes/No Questions**: "Is there a cat?" → yes, no
 - ⚠️ **Simple Counting**: "How many dogs?" → 1, 2, 3
 
-**Compare 8 model variants:**
+**Compare 4 model variants:**
 - Attention vs No Attention
 - Pretrained vs From-scratch
-- ResNet50 vs VGG16
 
 ## Requirements
 
@@ -84,7 +83,7 @@ py -3.10 main.py compare
 Edit configuration in the `CONFIG` section at the top of `main.py`:
 ```python
 CONFIG = {
-    'model_id': 2,           # 1-8
+    'model_id': 2,           # 1-4
     'dataset': 'small',      # 'small' or 'full'
     'epochs': 5,
     'batch_size': 32,
@@ -92,7 +91,7 @@ CONFIG = {
 }
 ```
 
-## 8 Model Variants
+## 4 Model Variants
 
 | ID | CNN | Pretrained | Attention |
 |----|-----|------------|-----------|
@@ -100,10 +99,6 @@ CONFIG = {
 | 2 | ResNet50 | ✅ | ✅ |
 | 3 | ResNet50 | ❌ | ❌ |
 | 4 | ResNet50 | ❌ | ✅ |
-| 5 | VGG16 | ✅ | ❌ |
-| 6 | VGG16 | ✅ | ✅ |
-| 7 | VGG16 | ❌ | ❌ |
-| 8 | VGG16 | ❌ | ✅ |
 
 ## Evaluation Metrics
 

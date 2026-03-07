@@ -1,7 +1,7 @@
 """
 Complete VQA Model
 Combines CNN Encoder, LSTM Encoder, Spatial Attention, and LSTM Decoder
-Supports 8 model variants
+Supports 4 model variants (ResNet50)
 """
 
 import torch
@@ -23,7 +23,7 @@ class VQAModel(nn.Module):
         answer_vocab_size: int,
         
         # CNN settings
-        cnn_arch: str = 'resnet50',  # 'resnet50' or 'vgg16'
+        cnn_arch: str = 'resnet50',
         cnn_pretrained: bool = True,
         cnn_freeze: bool = True,
         
@@ -97,7 +97,8 @@ class VQAModel(nn.Module):
         print(f"\n{'='*60}")
         print(f"VQA MODEL INITIALIZED: [{self.get_model_name()}]")
         print(f"{'='*60}")
-        print(f"• Image Encoder    : {cnn_arch.upper()} ({'Pretrained' if cnn_pretrained else 'From-scratch'}, {'Frozen' if cnn_freeze else 'Unfrozen'})")
+        encoder_name = 'ResNet50 (Pretrained, ImageNet)' if cnn_pretrained else 'ScratchCNN (From-scratch, Kaiming init)'
+        print(f"• Image Encoder    : {encoder_name}, {'Frozen' if cnn_freeze else 'Unfrozen'}")
         print(f"• Question Encoder : LSTM ({num_lstm_layers} layers, Hidden: {lstm_hidden_dim})")
         print(f"• Attention        : {'Spatial (7x7)' if use_attention else 'None'}")
         print(f"• Answer Decoder   : LSTM ({num_lstm_layers} layers, Vocab: {answer_vocab_size})")
@@ -183,20 +184,16 @@ class VQAModel(nn.Module):
 
 def create_model_variant(model_id: int, question_vocab_size: int, answer_vocab_size: int):
     """
-    Create one of the 8 model variants
+    Create one of the 4 model variants
     
     Model variants:
         1: ResNet50 + Pretrained + No Attention
         2: ResNet50 + Pretrained + Attention
         3: ResNet50 + From-scratch + No Attention
         4: ResNet50 + From-scratch + Attention
-        5: VGG16 + Pretrained + No Attention
-        6: VGG16 + Pretrained + Attention
-        7: VGG16 + From-scratch + No Attention
-        8: VGG16 + From-scratch + Attention
     
     Args:
-        model_id: Model ID (1-8)
+        model_id: Model ID (1-4)
         question_vocab_size: Question vocabulary size
         answer_vocab_size: Answer vocabulary size
     
@@ -208,14 +205,10 @@ def create_model_variant(model_id: int, question_vocab_size: int, answer_vocab_s
         2: {'cnn_arch': 'resnet50', 'cnn_pretrained': True, 'use_attention': True},
         3: {'cnn_arch': 'resnet50', 'cnn_pretrained': False, 'use_attention': False},
         4: {'cnn_arch': 'resnet50', 'cnn_pretrained': False, 'use_attention': True},
-        5: {'cnn_arch': 'vgg16', 'cnn_pretrained': True, 'use_attention': False},
-        6: {'cnn_arch': 'vgg16', 'cnn_pretrained': True, 'use_attention': True},
-        7: {'cnn_arch': 'vgg16', 'cnn_pretrained': False, 'use_attention': False},
-        8: {'cnn_arch': 'vgg16', 'cnn_pretrained': False, 'use_attention': True},
     }
     
     if model_id not in configs:
-        raise ValueError(f"Invalid model_id: {model_id}. Must be 1-8.")
+        raise ValueError(f"Invalid model_id: {model_id}. Must be 1-4.")
     
     config = configs[model_id]
     

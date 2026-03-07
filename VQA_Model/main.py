@@ -23,7 +23,7 @@ import torch.nn as nn
 
 CONFIG = {
     # --- Model ---
-    'model_id': 2,           # 1-8 (see model table below)
+    'model_id': 2,           # 1-4 (see model table below)
     
     # --- Dataset ---
     'dataset': 'full',      # 'small' (dog+cat) or 'full' (10 animals)
@@ -53,10 +53,6 @@ CONFIG = {
 #  2  | ResNet50  | Yes        | Yes       | Pretrained + Attention
 #  3  | ResNet50  | No         | No        | From-scratch baseline
 #  4  | ResNet50  | No         | Yes       | From-scratch + Attention
-#  5  | VGG16     | Yes        | No        | VGG pretrained
-#  6  | VGG16     | Yes        | Yes       | VGG pretrained + Attention
-#  7  | VGG16     | No         | No        | VGG from-scratch
-#  8  | VGG16     | No         | Yes       | VGG from-scratch + Attention
 # ============================================================================
 
 
@@ -260,7 +256,7 @@ def cmd_compare():
     print(f"{'='*80}\n")
     
     results = {}
-    for i in range(1, 9):
+    for i in range(1, 5):
         result_file = f'results/model_{i}_predictions.json'
         if os.path.exists(result_file):
             with open(result_file, 'r') as f:
@@ -277,10 +273,6 @@ def cmd_compare():
         2: ('ResNet50', 'Pretrained', 'Yes'),
         3: ('ResNet50', 'Scratch',    'No'),
         4: ('ResNet50', 'Scratch',    'Yes'),
-        5: ('VGG16',    'Pretrained', 'No'),
-        6: ('VGG16',    'Pretrained', 'Yes'),
-        7: ('VGG16',    'Scratch',    'No'),
-        8: ('VGG16',    'Scratch',    'Yes'),
     }
     
     # Print table
