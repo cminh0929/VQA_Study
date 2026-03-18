@@ -99,12 +99,10 @@ Thumbs.db
 !VQA_Model_B/data/question_vocab.json
 !VQA_Model_B/data/answer_vocab.json
 
-# Results & logs (giữ json, bỏ ảnh png)
-!VQA_Model/results/
-!VQA_Model/results/*.json
-!VQA_Model/logs/
-!VQA_Model/logs/**
+# Results & logs (giữ json, ảnh, logs)
 !VQA_Model_B/results/
 !VQA_Model_B/results/*.json
+!VQA_Model_B/results/visualizations/
+!VQA_Model_B/results/visualizations/*.png
 !VQA_Model_B/logs/
 !VQA_Model_B/logs/**
